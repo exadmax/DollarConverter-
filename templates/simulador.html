@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Simulador de Lucro Semanal</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: auto; padding-top: 40px; text-align: center; }
+        input, button { padding: 10px; margin: 10px; width: 80%; font-size: 16px; }
+        .resultado { margin-top: 20px; font-size: 18px; font-weight: bold; }
+        a { display: inline-block; margin-top: 20px; text-decoration: none; color: #444; }
+    </style>
+</head>
+<body>
+    <h2>📈 Simulador de Lucro Semanal</h2>
+    <form method="POST">
+        <input type="number" name="meta" step="0.01" placeholder="Meta semanal (R$)" required><br>
+        <input type="number" name="rendimento" step="0.1" value="3" placeholder="Rendimento médio semanal (%)" required><br>
+        <button type="submit">Simular</button>
+    </form>
+
+    {% if resultado %}
+        <div class="resultado">{{ resultado }}</div>
+    {% endif %}
+
+    <a href="/">← Voltar ao Conversor</a>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Conversor de Moedas</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; margin-top: 50px; }
+        input, select, button { margin: 10px; padding: 10px; font-size: 16px; }
+        .resultado { margin-top: 20px; font-size: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Conversor de Moedas</h1>
+    <form method="POST">
+        <input type="text" name="valor" placeholder="Valor a converter" required>
+        <br>
+        <select name="de">
+            {% for sigla, nome in moedas.items() %}
+            <option value="{{ sigla }}">{{ nome }} ({{ sigla }})</option>
+            {% endfor %}
+        </select>
+        →
+        <select name="para">
+            {% for sigla, nome in moedas.items() %}
+            <option value="{{ sigla }}">{{ nome }} ({{ sigla }})</option>
+            {% endfor %}
+        </select>
+        <br>
+        <button type="submit">Converter</button>
+    </form>
+
+    {% if resultado %}
+        <div class="resultado">{{ resultado }}</div>
+    {% endif %}
+</body>
+</html>
