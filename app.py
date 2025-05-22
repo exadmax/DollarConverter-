@@ -1,3 +1,4 @@
+import os
 import requests
 import tkinter as tk
 from tkinter import messagebox
@@ -9,31 +10,51 @@ def obter_cotacao_dolar():
         dados = resposta.json()
         return float(dados["USDBRL"]["bid"])
     except Exception as e:
-        messagebox.showerror("Erro", f"Erro ao obter cotação do dólar:\n{e}")
+        print(f"Erro ao obter cotação do dólar: {e}")
         return None
 
-def converter():
+def modo_console():
+    print("Modo console ativado (sem suporte a interface gráfica).")
+    valor = input("Digite o valor em dólar: ")
     try:
-        valor_dolar = float(entrada_dolar.get())
+        valor_dolar = float(valor)
         cotacao = obter_cotacao_dolar()
         if cotacao:
             valor_reais = valor_dolar * cotacao
-            resultado_var.set(f"R$ {valor_reais:.2f}")
+            print(f"Valor em reais: R$ {valor_reais:.2f}")
     except ValueError:
-        messagebox.showwarning("Aviso", "Digite um valor válido em dólar.")
+        print("Valor inválido.")
 
-# Interface
-janela = tk.Tk()
-janela.title("Conversor Dólar para Real")
+def modo_tkinter():
+    def converter():
+        try:
+            valor_dolar = float(entrada_dolar.get())
+            cotacao = obter_cotacao_dolar()
+            if cotacao:
+                valor_reais = valor_dolar * cotacao
+                resultado_var.set(f"R$ {valor_reais:.2f}")
+        except ValueError:
+            messagebox.showwarning("Aviso", "Digite um valor válido em dólar.")
 
-tk.Label(janela, text="Valor em Dólar (US$):").pack()
+    janela = tk.Tk()
+    janela.title("Conversor Dólar para Real")
 
-entrada_dolar = tk.Entry(janela)
-entrada_dolar.pack()
+    tk.Label(janela, text="Valor em Dólar (US$):").pack()
+    entrada_dolar = tk.Entry(janela)
+    entrada_dolar.pack()
+    tk.Button(janela, text="Converter", command=converter).pack(pady=5)
 
-tk.Button(janela, text="Converter", command=converter).pack(pady=5)
+    resultado_var = tk.StringVar()
+    tk.Label(janela, textvariable=resultado_var, font=("Helvetica", 16)).pack(pady=10)
 
-resultado_var = tk.StringVar()
-tk.Label(janela, textvariable=resultado_var, font=("Helvetica", 16)).pack(pady=10)
+    janela.mainloop()
 
-janela.mainloop()
+if __name__ == "__main__":
+    try:
+        # Tenta iniciar o modo gráfico
+        if os.environ.get("DISPLAY") or os.name == "nt":  # Windows geralmente tem GUI
+            modo_tkinter()
+        else:
+            raise Exception("Sem display")
+    except Exception:
+        modo_console()
