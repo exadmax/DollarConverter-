@@ -54,7 +54,7 @@ def obter_preco_acao(ticker):
         if results:
             return float(results[0].get("regularMarketPrice"))
     except Exception as e:
-        print(f"Erro ao obter preco: {e}")
+        print(f"Erro ao obter preço: {e}")
     return None
 
 def modo_console_conversor():
