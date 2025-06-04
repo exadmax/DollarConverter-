@@ -27,11 +27,23 @@ def obter_cotacao(origem, destino):
 
 def modo_console_conversor():
     print("Modo Conversor Console")
-    print("Moedas disponíveis:")
-    for i, moeda in enumerate(MOEDAS):
-        print(f"{i + 1}. {moeda}")
-    origem = input("Digite a moeda de origem (ex: USD): ").upper()
-    destino = input("Digite a moeda de destino (ex: BRL): ").upper()
+    nomes = list(MOEDAS.keys())
+    for i, moeda in enumerate(nomes, start=1):
+        print(f"{i}. {moeda}")
+
+    def selecionar_moeda(texto):
+        while True:
+            escolha = input(f"{texto} (1-{len(nomes)}): ")
+            try:
+                idx = int(escolha) - 1
+                if 0 <= idx < len(nomes):
+                    return MOEDAS[nomes[idx]]
+            except ValueError:
+                pass
+            print("Opção inválida. Tente novamente.")
+
+    origem = selecionar_moeda("Escolha a moeda de origem")
+    destino = selecionar_moeda("Escolha a moeda de destino")
     valor = input("Digite o valor a converter: ")
     try:
         valor = float(valor)
@@ -119,12 +131,16 @@ def abrir_conversor():
     entrada_valor.pack()
 
     tk.Label(janela_conversor, text="De:").pack()
-    combo_origem = ttk.Combobox(janela_conversor, values=list(MOEDAS.keys()))
+    combo_origem = ttk.Combobox(
+        janela_conversor, values=list(MOEDAS.keys()), state="readonly"
+    )
     combo_origem.current(0)
     combo_origem.pack()
 
     tk.Label(janela_conversor, text="Para:").pack()
-    combo_destino = ttk.Combobox(janela_conversor, values=list(MOEDAS.keys()))
+    combo_destino = ttk.Combobox(
+        janela_conversor, values=list(MOEDAS.keys()), state="readonly"
+    )
     combo_destino.current(1)
     combo_destino.pack()
 
