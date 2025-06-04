@@ -200,7 +200,7 @@ def abrir_acoes():
     janela_acoes.title("Cotação de Ações")
 
     tk.Label(janela_acoes, text="Selecione a ação:").pack()
-    combo_acao = ttk.Combobox(janela_acoes, values=list(ACOES.keys()))
+    combo_acao = ttk.Combobox(janela_acoes, values=list(ACOES.keys()), state='readonly')
     combo_acao.current(0)
     combo_acao.pack()
 
