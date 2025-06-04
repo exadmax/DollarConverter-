@@ -169,12 +169,16 @@ def abrir_conversor():
     entrada_valor.pack()
 
     tk.Label(janela_conversor, text="De:").pack()
-    combo_origem = ttk.Combobox(janela_conversor, values=list(MOEDAS.keys()))
+    combo_origem = ttk.Combobox(
+        janela_conversor, values=list(MOEDAS.keys()), state="readonly"
+    )
     combo_origem.current(0)
     combo_origem.pack()
 
     tk.Label(janela_conversor, text="Para:").pack()
-    combo_destino = ttk.Combobox(janela_conversor, values=list(MOEDAS.keys()))
+    combo_destino = ttk.Combobox(
+        janela_conversor, values=list(MOEDAS.keys()), state="readonly"
+    )
     combo_destino.current(1)
     combo_destino.pack()
 
