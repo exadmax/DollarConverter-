@@ -14,6 +14,26 @@ MOEDAS = {
     "Pax Gold (PAXG)": "PAXG"
 }
 
+# Ações B3
+ACOES = {
+    "PETR4": "Petrobras PN",
+    "VALE3": "Vale ON",
+    "ITUB4": "Itau Unibanco PN",
+    "B3SA3": "B3",
+    "ABEV3": "Ambev"
+}
+
+
+def selecionar_moeda(mensagem):
+    opcoes = list(MOEDAS.keys())
+    for i, nome in enumerate(opcoes, 1):
+        print(f"{i}. {nome}")
+    while True:
+        escolha = input(mensagem)
+        if escolha.isdigit() and 1 <= int(escolha) <= len(opcoes):
+            return MOEDAS[opcoes[int(escolha) - 1]]
+        print("Opção inválida. Tente novamente.")
+
 def obter_cotacao(origem, destino):
     try:
         url = f"https://economia.awesomeapi.com.br/json/last/{origem}-{destino}"
@@ -25,13 +45,22 @@ def obter_cotacao(origem, destino):
         print(f"Erro ao obter cotação: {e}")
         return None
 
+def obter_preco_acao(ticker):
+    try:
+        url = f"https://brapi.dev/api/quote/{ticker}"
+        resp = requests.get(url)
+        data = resp.json()
+        results = data.get("results")
+        if results:
+            return float(results[0].get("regularMarketPrice"))
+    except Exception as e:
+        print(f"Erro ao obter preco: {e}")
+    return None
+
 def modo_console_conversor():
     print("Modo Conversor Console")
-    print("Moedas disponíveis:")
-    for i, moeda in enumerate(MOEDAS):
-        print(f"{i + 1}. {moeda}")
-    origem = input("Digite a moeda de origem (ex: USD): ").upper()
-    destino = input("Digite a moeda de destino (ex: BRL): ").upper()
+    origem = selecionar_moeda("Escolha a moeda de origem: ")
+    destino = selecionar_moeda("Escolha a moeda de destino: ")
     valor = input("Digite o valor a converter: ")
     try:
         valor = float(valor)
@@ -54,15 +83,36 @@ def modo_console_simulador():
     except ValueError:
         print("Valores inválidos.")
 
+def modo_console_acoes():
+    print("Modo Cotação de Ações")
+    opcoes = list(ACOES.items())
+    for i, (codigo, nome) in enumerate(opcoes, 1):
+        print(f"{i}. {nome} ({codigo})")
+    while True:
+        escolha = input("Escolha o número da ação: ")
+        if escolha.isdigit() and 1 <= int(escolha) <= len(opcoes):
+            ticker = opcoes[int(escolha) - 1][0]
+            preco = obter_preco_acao(ticker)
+            if preco:
+                print(f"Preço atual de {ticker}: R${preco:.2f}")
+            else:
+                print("Não foi possível obter o preço.")
+            break
+        else:
+            print("Opção inválida.")
+
 def menu_console():
     print("== MENU ==")
     print("1 - Conversor de Moedas")
     print("2 - Simulador de Lucro Semanal")
+    print("3 - Cotação de Ações")
     escolha = input("Escolha uma opção: ")
     if escolha == "1":
         modo_console_conversor()
     elif escolha == "2":
         modo_console_simulador()
+    elif escolha == "3":
+        modo_console_acoes()
     else:
         print("Opção inválida.")
 
@@ -133,6 +183,28 @@ def abrir_conversor():
     resultado_var = tk.StringVar()
     tk.Label(janela_conversor, textvariable=resultado_var, font=("Helvetica", 14)).pack(pady=10)
 
+def abrir_acoes():
+    def consultar():
+        ticker = combo_acao.get()
+        preco = obter_preco_acao(ticker)
+        if preco:
+            resultado_var.set(f"Preço de {ticker}: R${preco:.2f}")
+        else:
+            resultado_var.set("Erro ao buscar preço.")
+
+    janela_acoes = tk.Toplevel()
+    janela_acoes.title("Cotação de Ações")
+
+    tk.Label(janela_acoes, text="Selecione a ação:").pack()
+    combo_acao = ttk.Combobox(janela_acoes, values=list(ACOES.keys()))
+    combo_acao.current(0)
+    combo_acao.pack()
+
+    tk.Button(janela_acoes, text="Consultar", command=consultar).pack(pady=5)
+
+    resultado_var = tk.StringVar()
+    tk.Label(janela_acoes, textvariable=resultado_var, font=("Helvetica", 14)).pack(pady=10)
+
 def menu_gui():
     janela_menu = tk.Tk()
     janela_menu.title("Menu")
@@ -140,6 +212,7 @@ def menu_gui():
     tk.Label(janela_menu, text="Escolha uma opção:", font=("Helvetica", 14)).pack(pady=20)
     tk.Button(janela_menu, text="Conversor de Moedas", command=abrir_conversor, width=30).pack(pady=10)
     tk.Button(janela_menu, text="Simulador de Lucro Semanal", command=abrir_simulador, width=30).pack(pady=10)
+    tk.Button(janela_menu, text="Cotação de Ações", command=abrir_acoes, width=30).pack(pady=10)
 
     janela_menu.mainloop()
 
