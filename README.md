@@ -140,6 +140,14 @@ Navigate to `/b3` for the B3 stocks page.
 python -m unittest
 ```
 
+### Build Windows Executable
+Use [PyInstaller](https://pyinstaller.org/) to bundle the application into a
+single Windows binary. From a Windows command prompt run:
+```cmd
+build_windows.bat
+```
+The generated `DollarConverter.exe` will be available in the `dist` folder.
+
 ### Deployment
 The Flask web app requires a Python server and therefore cannot run directly on
 GitHub Pages. To make it accessible online you can deploy it on services such as
