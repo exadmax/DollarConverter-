@@ -69,6 +69,8 @@ def index():
             convertido = core.convert(valor_float, de, para)
             resultado = f"{valor_float:.4f} {de} = {convertido:.4f} {para}"
             salvar_historico(de, para, valor_float, convertido, core.get_exchange_rate(de, para))
+        except ConnectionError:
+            resultado = "API de cotações indisponível."
         except Exception:
             resultado = "Valor inválido."
 
