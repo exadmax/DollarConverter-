@@ -32,6 +32,8 @@ def modo_console_conversor():
         valor = float(valor)
         convertido = core.convert(valor, origem, destino)
         print(f"Resultado: {convertido:.4f} {destino}")
+    except ConnectionError:
+        print("Erro: API de cotações indisponível")
     except Exception as e:
         print(f"Erro: {e}")
 
@@ -175,6 +177,8 @@ def abrir_conversor():
             resultado_var.set(
                 f"{valor:.4f} {origem} = {convertido:.4f} {destino}"
             )
+        except ConnectionError:
+            messagebox.showerror("Erro", "API de cotações indisponível")
         except ValueError:
             messagebox.showwarning("Aviso", "Digite um valor válido.")
 

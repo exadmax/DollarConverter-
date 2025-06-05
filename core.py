@@ -29,9 +29,12 @@ CURRENCY_HISTORY_BRL = {
 def get_exchange_rate(origem: str, destino: str) -> float:
     """Return the exchange rate from origem to destino using AwesomeAPI."""
     url = f"https://economia.awesomeapi.com.br/json/last/{origem}-{destino}"
-    response = requests.get(url, timeout=10)
-    response.raise_for_status()
-    data = response.json()
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+    except requests.RequestException as exc:
+        raise ConnectionError("API de cotações indisponível") from exc
     key = f"{origem}{destino}"
     if key not in data:
         raise ValueError("Par de moedas inválido")
