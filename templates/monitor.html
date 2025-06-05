@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Monitor de Cotações</title>
+    <meta http-equiv="refresh" content="300">
+    <style>
+        body { font-family: sans-serif; text-align: center; margin-top: 40px; }
+        table { margin:auto; border-collapse: collapse; }
+        th, td { border:1px solid #ccc; padding:6px 10px; }
+    </style>
+</head>
+<body>
+    <h1>Monitor de Cotações (atualiza a cada 5 min)</h1>
+    <h2>Moedas (BRL)</h2>
+    <table>
+        <tr><th>Moeda</th><th>Preço</th></tr>
+        {% for cod, preco in dados.currencies.items() %}
+        <tr><td>{{ cod }}</td><td>{{ '%.2f'|format(preco) }}</td></tr>
+        {% endfor %}
+    </table>
+    <h2>Ações B3</h2>
+    <table>
+        <tr><th>Ticker</th><th>Preço (BRL)</th></tr>
+        {% for tic, preco in dados.stocks.items() %}
+        <tr><td>{{ tic }}</td><td>{{ '%.2f'|format(preco) }}</td></tr>
+        {% endfor %}
+    </table>
+    <a href="/">← Voltar</a>
+</body>
+</html>
