@@ -1,29 +1,11 @@
 import os
-import requests
 import tkinter as tk
 from tkinter import messagebox, ttk
 
-# Moedas disponíveis
-MOEDAS = {
-    "Dólar (USD)": "USD",
-    "Real (BRL)": "BRL",
-    "Bitcoin (BTC)": "BTC",
-    "Ethereum (ETH)": "ETH",
-    "BNB": "BNB",
-    "Sui (SUI)": "SUI",
-    "Pax Gold (PAXG)": "PAXG"
-}
+import core
 
-def obter_cotacao(origem, destino):
-    try:
-        url = f"https://economia.awesomeapi.com.br/json/last/{origem}-{destino}"
-        resposta = requests.get(url)
-        dados = resposta.json()
-        chave = f"{origem}{destino}"
-        return float(dados[chave]["bid"])
-    except Exception as e:
-        print(f"Erro ao obter cotação: {e}")
-        return None
+# Mapping of formatted currency name to code used in the interfaces
+MOEDAS = core.FORMATTED_TO_CODE
 
 def modo_console_conversor():
     print("Modo Conversor Console")
@@ -47,9 +29,8 @@ def modo_console_conversor():
     valor = input("Digite o valor a converter: ")
     try:
         valor = float(valor)
-        cotacao = obter_cotacao(origem, destino)
-        if cotacao:
-            print(f"Resultado: {valor * cotacao:.4f} {destino}")
+        convertido = core.convert(valor, origem, destino)
+        print(f"Resultado: {convertido:.4f} {destino}")
     except Exception as e:
         print(f"Erro: {e}")
 
@@ -61,8 +42,10 @@ def modo_console_simulador():
         if rendimento <= 0:
             print("Rendimento deve ser maior que zero.")
             return
-        investimento = meta / (rendimento / 100)
-        print(f"Para lucrar R${meta:.2f}/semana com {rendimento:.2f}%, invista R${investimento:.2f}")
+        investimento = core.investment_for_weekly_profit(meta, rendimento)
+        print(
+            f"Para lucrar R${meta:.2f}/semana com {rendimento:.2f}%, invista R${investimento:.2f}"
+        )
     except ValueError:
         print("Valores inválidos.")
 
@@ -86,8 +69,10 @@ def abrir_simulador():
             if rendimento <= 0:
                 resultado_simulador_var.set("Rendimento deve ser maior que zero.")
                 return
-            investimento = meta / (rendimento / 100)
-            resultado_simulador_var.set(f"Para lucrar R${meta:.2f}/semana com {rendimento:.2f}%, invista R${investimento:.2f}")
+            investimento = core.investment_for_weekly_profit(meta, rendimento)
+            resultado_simulador_var.set(
+                f"Para lucrar R${meta:.2f}/semana com {rendimento:.2f}%, invista R${investimento:.2f}"
+            )
         except ValueError:
             resultado_simulador_var.set("Preencha os campos corretamente.")
 
@@ -114,12 +99,10 @@ def abrir_conversor():
             valor = float(entrada_valor.get())
             origem = MOEDAS[combo_origem.get()]
             destino = MOEDAS[combo_destino.get()]
-            cotacao = obter_cotacao(origem, destino)
-            if cotacao:
-                convertido = valor * cotacao
-                resultado_var.set(f"{valor:.4f} {origem} = {convertido:.4f} {destino}")
-            else:
-                resultado_var.set("Erro ao buscar cotação.")
+            convertido = core.convert(valor, origem, destino)
+            resultado_var.set(
+                f"{valor:.4f} {origem} = {convertido:.4f} {destino}"
+            )
         except ValueError:
             messagebox.showwarning("Aviso", "Digite um valor válido.")
 
@@ -167,3 +150,4 @@ if __name__ == "__main__":
             raise Exception("Sem display")
     except Exception:
         menu_console()
+

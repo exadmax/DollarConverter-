@@ -128,6 +128,18 @@ python web.py
 ```
 Access: http://127.0.0.1:5000
 
+### Run Tests
+```bash
+python -m unittest
+```
+
+### Deployment
+The Flask web app requires a Python server and therefore cannot run directly on
+GitHub Pages. To make it accessible online you can deploy it on services such as
+[Render](https://render.com/) or [Fly.io](https://fly.io/). GitHub Pages can be
+used to host the static HTML under `templates/`, but a Python backend is still
+needed for the conversions.
+
 ---
 
 ## 📁 Project Structure
@@ -137,4 +149,6 @@ standalone.py          # Main code with GUI + CLI
 web.py                 # Flask-based web version
 templates/             # HTML templates for web UI
 historico.txt          # (optional) conversion history
+core.py                # Shared conversion and simulation logic
+test_core.py           # Unit tests for core functions
 ```
