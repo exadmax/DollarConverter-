@@ -59,8 +59,25 @@ def obter_preco_acao(ticker):
 
 def modo_console_conversor():
     print("Modo Conversor Console")
+
     origem = selecionar_moeda("Escolha a moeda de origem: ")
     destino = selecionar_moeda("Escolha a moeda de destino: ")
+
+    nomes = list(MOEDAS.keys())
+    for i, moeda in enumerate(nomes, start=1):
+        print(f"{i}. {moeda}")
+
+    def selecionar_moeda(texto):
+        while True:
+            escolha = input(f"{texto} (1-{len(nomes)}): ")
+            try:
+                idx = int(escolha) - 1
+                if 0 <= idx < len(nomes):
+                    return MOEDAS[nomes[idx]]
+            except ValueError:
+                pass
+            print("Opção inválida. Tente novamente.")
+
     valor = input("Digite o valor a converter: ")
     try:
         valor = float(valor)
