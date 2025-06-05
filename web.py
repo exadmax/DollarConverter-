@@ -6,6 +6,7 @@ import core
 app = Flask(__name__)
 
 MOEDAS = core.CURRENCIES
+ACOES = core.get_b3_stocks()
 
 
 def salvar_historico(origem, destino, valor, convertido, cotacao):
@@ -30,6 +31,11 @@ def simulador():
             resultado = "Preencha os campos corretamente."
 
     return render_template("simulador.html", resultado=resultado)
+
+
+@app.route("/b3", methods=["GET"])
+def b3():
+    return render_template("b3.html", acoes=ACOES)
 
 
 

@@ -39,3 +39,27 @@ def investment_for_weekly_profit(target: float, weekly_return_percent: float) ->
         raise ValueError("Rendimento deve ser maior que zero.")
     return target / (weekly_return_percent / 100)
 
+
+# =========================== B3 stock data ============================
+# In environments without internet access we keep a small offline table
+# with example prices (in BRL) and estimated weekly returns.  These
+# values are merely illustrative.
+B3_STOCKS = {
+    "PETR4": {"name": "Petrobras PN", "price_brl": 37.50, "weekly_return": 2.1},
+    "VALE3": {"name": "Vale ON", "price_brl": 62.00, "weekly_return": -1.2},
+    "ABEV3": {"name": "Ambev ON", "price_brl": 14.20, "weekly_return": 0.8},
+}
+
+
+def get_b3_stocks() -> dict:
+    """Return mapping of B3 tickers to info."""
+    return B3_STOCKS
+
+
+def get_b3_stock_info(ticker: str) -> dict:
+    """Return information for a B3 stock ticker."""
+    if ticker not in B3_STOCKS:
+        raise ValueError("Ticker inválido")
+    return B3_STOCKS[ticker]
+
+
