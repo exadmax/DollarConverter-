@@ -19,6 +19,18 @@ class TestCore(unittest.TestCase):
         with self.assertRaises(ValueError):
             core.get_b3_stock_info('XXXX')
 
+    def test_currency_monthly_appreciation(self):
+        vals = core.get_currency_monthly_appreciation('USD')
+        self.assertEqual(len(vals), len(core.CURRENCY_HISTORY_BRL['USD']) - 1)
+        with self.assertRaises(ValueError):
+            core.get_currency_monthly_appreciation('XYZ')
+
+    def test_stock_monthly_appreciation(self):
+        vals = core.get_stock_monthly_appreciation('PETR4')
+        self.assertEqual(len(vals), len(core.B3_STOCKS['PETR4']['monthly']) - 1)
+        with self.assertRaises(ValueError):
+            core.get_stock_monthly_appreciation('XXXX')
+
 if __name__ == '__main__':
     unittest.main()
 

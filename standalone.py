@@ -72,11 +72,53 @@ def modo_console_b3():
             pass
         print("Opção inválida. Tente novamente.")
 
+
+def modo_console_valorizacao_moeda():
+    import asciichartpy
+    print("Valorização mensal de moedas")
+    nomes = list(MOEDAS.keys())
+    for i, n in enumerate(nomes, 1):
+        print(f"{i}. {n}")
+    while True:
+        esc = input(f"Escolha a moeda (1-{len(nomes)}): ")
+        try:
+            idx = int(esc) - 1
+            if 0 <= idx < len(nomes):
+                code = MOEDAS[nomes[idx]]
+                dados = core.get_currency_monthly_appreciation(code)
+                print(asciichartpy.plot(dados, {'height':10}))
+                break
+        except Exception:
+            pass
+        print("Opção inválida. Tente novamente.")
+
+
+def modo_console_valorizacao_b3():
+    import asciichartpy
+    print("Valorização mensal de ações B3")
+    tickers = list(ACAO_INFO.keys())
+    for i, t in enumerate(tickers, 1):
+        print(f"{i}. {t}")
+    while True:
+        esc = input(f"Escolha a ação (1-{len(tickers)}): ")
+        try:
+            idx = int(esc) - 1
+            if 0 <= idx < len(tickers):
+                ticker = tickers[idx]
+                dados = core.get_stock_monthly_appreciation(ticker)
+                print(asciichartpy.plot(dados, {'height':10}))
+                break
+        except Exception:
+            pass
+        print("Opção inválida. Tente novamente.")
+
 def menu_console():
     print("== MENU ==")
     print("1 - Conversor de Moedas")
     print("2 - Simulador de Lucro Semanal")
     print("3 - Ações da B3")
+    print("4 - Valorização Mensal de Moedas")
+    print("5 - Valorização Mensal de Ações B3")
     escolha = input("Escolha uma opção: ")
     if escolha == "1":
         modo_console_conversor()
@@ -84,6 +126,10 @@ def menu_console():
         modo_console_simulador()
     elif escolha == "3":
         modo_console_b3()
+    elif escolha == "4":
+        modo_console_valorizacao_moeda()
+    elif escolha == "5":
+        modo_console_valorizacao_b3()
     else:
         print("Opção inválida.")
 
@@ -181,6 +227,50 @@ def abrir_b3():
     mostrar()
     tk.Label(janela_b3, textvariable=texto_var, font=("Helvetica", 12)).pack(pady=10)
 
+
+def abrir_valorizacao_moeda():
+    janela = tk.Toplevel()
+    janela.title("Valorização Mensal de Moedas")
+
+    tk.Label(janela, text="Selecione a moeda:").pack()
+    nomes = list(MOEDAS.keys())
+    combo = ttk.Combobox(janela, values=nomes, state="readonly")
+    combo.current(0)
+    combo.pack()
+
+    texto = tk.StringVar()
+
+    def mostrar(*args):
+        codigo = MOEDAS[combo.get()]
+        valores = core.get_currency_monthly_appreciation(codigo)
+        texto.set(" | ".join(f"{v:.1f}%" for v in valores))
+
+    combo.bind("<<ComboboxSelected>>", mostrar)
+    mostrar()
+    tk.Label(janela, textvariable=texto, font=("Helvetica", 12)).pack(pady=10)
+
+
+def abrir_valorizacao_b3():
+    janela = tk.Toplevel()
+    janela.title("Valorização Mensal de Ações B3")
+
+    tk.Label(janela, text="Selecione a ação:").pack()
+    tickers = list(ACAO_INFO.keys())
+    combo = ttk.Combobox(janela, values=tickers, state="readonly")
+    combo.current(0)
+    combo.pack()
+
+    texto = tk.StringVar()
+
+    def mostrar(*args):
+        ticker = combo.get()
+        valores = core.get_stock_monthly_appreciation(ticker)
+        texto.set(" | ".join(f"{v:.1f}%" for v in valores))
+
+    combo.bind("<<ComboboxSelected>>", mostrar)
+    mostrar()
+    tk.Label(janela, textvariable=texto, font=("Helvetica", 12)).pack(pady=10)
+
 def menu_gui():
     janela_menu = tk.Tk()
     janela_menu.title("Menu")
@@ -189,6 +279,8 @@ def menu_gui():
     tk.Button(janela_menu, text="Conversor de Moedas", command=abrir_conversor, width=30).pack(pady=10)
     tk.Button(janela_menu, text="Simulador de Lucro Semanal", command=abrir_simulador, width=30).pack(pady=10)
     tk.Button(janela_menu, text="Ações da B3", command=abrir_b3, width=30).pack(pady=10)
+    tk.Button(janela_menu, text="Valorização de Moedas", command=abrir_valorizacao_moeda, width=30).pack(pady=10)
+    tk.Button(janela_menu, text="Valorização de Ações B3", command=abrir_valorizacao_b3, width=30).pack(pady=10)
 
     janela_menu.mainloop()
 
