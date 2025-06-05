@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Valorização Ações B3</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; margin-top: 40px; }
+        table { margin:auto; border-collapse: collapse; }
+        th, td { border:1px solid #ccc; padding:6px 10px; }
+    </style>
+</head>
+<body>
+    <h1>Valorização Mensal de Ações B3</h1>
+    <table>
+        <tr><th>Ticker</th><th>Variações (%)</th></tr>
+        {% for tic, lista in dados.items() %}
+        <tr>
+            <td>{{ tic }}</td>
+            <td>{{ ' | '.join('%.1f'|format(x) for x in lista) }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <a href="/">← Voltar</a>
+</body>
+</html>

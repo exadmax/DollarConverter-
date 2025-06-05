@@ -38,6 +38,24 @@ def b3():
     return render_template("b3.html", acoes=ACOES)
 
 
+@app.route("/moedas")
+def moedas():
+    dados = {
+        code: core.get_currency_monthly_appreciation(code)
+        for code in MOEDAS.keys()
+    }
+    return render_template("moedas.html", dados=dados)
+
+
+@app.route("/b3_valorizacao")
+def b3_valorizacao():
+    dados = {
+        t: core.get_stock_monthly_appreciation(t)
+        for t in ACOES.keys()
+    }
+    return render_template("b3_val.html", dados=dados)
+
+
 
 @app.route("/", methods=["GET", "POST"])
 def index():
