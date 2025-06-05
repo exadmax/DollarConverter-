@@ -117,9 +117,8 @@ A Python application to convert between fiat currencies and cryptocurrencies, an
 
 ### Requirements
 - Python 3.8+
-- `requests` library (`pip install requests`)
+- Install dependencies with `pip install -r requirements.txt`
 - `tkinter` (bundled with most Python installs)
-- `flask` (only for the web version)
 
 ### Run Desktop App (GUI or CLI)
 ```bash
