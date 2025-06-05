@@ -31,6 +31,11 @@ class TestCore(unittest.TestCase):
         with self.assertRaises(ValueError):
             core.get_stock_monthly_appreciation('XXXX')
 
+    @patch('core.requests.get', side_effect=core.requests.RequestException)
+    def test_get_exchange_rate_api_down(self, mock_get):
+        with self.assertRaises(ConnectionError):
+            core.get_exchange_rate('USD', 'BRL')
+
 if __name__ == '__main__':
     unittest.main()
 
