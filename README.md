@@ -107,6 +107,10 @@ A Python application to convert between fiat currencies and cryptocurrencies, an
 - Auto-detects whether to run GUI or console
 - Menu allows choosing between converter or simulator
 
+### 📊 B3 Stocks
+- View example prices of popular B3 tickers in BRL
+- Weekly return percentages displayed
+
 ---
 
 ## 🖥️ How to Run
@@ -121,12 +125,15 @@ A Python application to convert between fiat currencies and cryptocurrencies, an
 ```bash
 python standalone.py
 ```
+The application chooses GUI or CLI automatically depending on your environment.
+Use the menu to access the currency converter, the profit simulator or the B3 stock list.
 
 ### Run Web Version
 ```bash
 python web.py
 ```
 Access: http://127.0.0.1:5000
+Navigate to `/b3` for the B3 stocks page.
 
 ### Run Tests
 ```bash

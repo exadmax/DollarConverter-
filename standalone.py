@@ -6,6 +6,7 @@ import core
 
 # Mapping of formatted currency name to code used in the interfaces
 MOEDAS = core.FORMATTED_TO_CODE
+ACAO_INFO = core.get_b3_stocks()
 
 def modo_console_conversor():
     print("Modo Conversor Console")
@@ -49,15 +50,40 @@ def modo_console_simulador():
     except ValueError:
         print("Valores inválidos.")
 
+
+def modo_console_b3():
+    print("Ações da B3")
+    tickers = list(ACAO_INFO.keys())
+    for i, tic in enumerate(tickers, start=1):
+        info = ACAO_INFO[tic]
+        print(f"{i}. {tic} - {info['name']}")
+
+    while True:
+        escolha = input(f"Selecione a ação (1-{len(tickers)}): ")
+        try:
+            idx = int(escolha) - 1
+            if 0 <= idx < len(tickers):
+                acao = ACAO_INFO[tickers[idx]]
+                print(
+                    f"Preço: R${acao['price_brl']:.2f} | Rendimento semanal: {acao['weekly_return']:.2f}%"
+                )
+                break
+        except ValueError:
+            pass
+        print("Opção inválida. Tente novamente.")
+
 def menu_console():
     print("== MENU ==")
     print("1 - Conversor de Moedas")
     print("2 - Simulador de Lucro Semanal")
+    print("3 - Ações da B3")
     escolha = input("Escolha uma opção: ")
     if escolha == "1":
         modo_console_conversor()
     elif escolha == "2":
         modo_console_simulador()
+    elif escolha == "3":
+        modo_console_b3()
     else:
         print("Opção inválida.")
 
@@ -132,6 +158,29 @@ def abrir_conversor():
     resultado_var = tk.StringVar()
     tk.Label(janela_conversor, textvariable=resultado_var, font=("Helvetica", 14)).pack(pady=10)
 
+
+def abrir_b3():
+    janela_b3 = tk.Toplevel()
+    janela_b3.title("Ações da B3")
+
+    tk.Label(janela_b3, text="Selecione a ação:").pack()
+    tickers = list(ACAO_INFO.keys())
+    combo = ttk.Combobox(janela_b3, values=tickers, state="readonly")
+    combo.current(0)
+    combo.pack()
+
+    texto_var = tk.StringVar()
+
+    def mostrar(*args):
+        info = ACAO_INFO[combo.get()]
+        texto_var.set(
+            f"Preço: R${info['price_brl']:.2f} | Rendimento semanal: {info['weekly_return']:.2f}%"
+        )
+
+    combo.bind("<<ComboboxSelected>>", mostrar)
+    mostrar()
+    tk.Label(janela_b3, textvariable=texto_var, font=("Helvetica", 12)).pack(pady=10)
+
 def menu_gui():
     janela_menu = tk.Tk()
     janela_menu.title("Menu")
@@ -139,6 +188,7 @@ def menu_gui():
     tk.Label(janela_menu, text="Escolha uma opção:", font=("Helvetica", 14)).pack(pady=20)
     tk.Button(janela_menu, text="Conversor de Moedas", command=abrir_conversor, width=30).pack(pady=10)
     tk.Button(janela_menu, text="Simulador de Lucro Semanal", command=abrir_simulador, width=30).pack(pady=10)
+    tk.Button(janela_menu, text="Ações da B3", command=abrir_b3, width=30).pack(pady=10)
 
     janela_menu.mainloop()
 

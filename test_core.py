@@ -13,6 +13,12 @@ class TestCore(unittest.TestCase):
     def test_convert_with_mocked_rate(self, mock_rate):
         self.assertEqual(core.convert(2, 'USD', 'BRL'), 10.0)
 
+    def test_get_b3_stock_info(self):
+        info = core.get_b3_stock_info('PETR4')
+        self.assertIn('price_brl', info)
+        with self.assertRaises(ValueError):
+            core.get_b3_stock_info('XXXX')
+
 if __name__ == '__main__':
     unittest.main()
 

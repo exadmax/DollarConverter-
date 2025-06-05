@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Ações da B3</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; margin-top: 50px; }
+        table { margin:auto; border-collapse: collapse; }
+        th, td { border: 1px solid #ccc; padding: 8px 12px; }
+    </style>
+</head>
+<body>
+    <h1>Ações da B3</h1>
+    <table>
+        <tr><th>Empresa</th><th>Preço (BRL)</th><th>Rendimento Semanal (%)</th></tr>
+        {% for ticker, info in acoes.items() %}
+        <tr>
+            <td>{{ info.name }} ({{ ticker }})</td>
+            <td>{{ '%.2f'|format(info.price_brl) }}</td>
+            <td>{{ '%.2f'|format(info.weekly_return) }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <a href="/">← Voltar ao Conversor</a>
+</body>
+</html>
