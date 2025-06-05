@@ -244,3 +244,32 @@ def get_stock_monthly_appreciation(ticker: str) -> list[float]:
     return _calc_appreciation(hist)
 
 
+def get_currency_price_brl(code: str) -> float:
+    """Return the latest price of a currency in BRL.
+
+    Falls back to the last offline value if the API is unavailable.
+    """
+    if code == "BRL":
+        return 1.0
+    try:
+        return get_exchange_rate(code, "BRL")
+    except Exception:
+        hist = CURRENCY_HISTORY_BRL.get(code)
+        if not hist:
+            raise
+        return hist[-1]
+
+
+def get_all_currency_prices_brl() -> dict:
+    """Return current BRL prices for all known currencies."""
+    return {c: get_currency_price_brl(c) for c in CURRENCIES.keys()}
+
+
+def gather_monitor_data() -> dict:
+    """Return data used by the monitoring interfaces."""
+    return {
+        "currencies": get_all_currency_prices_brl(),
+        "stocks": {t: info["price_brl"] for t, info in B3_STOCKS.items()},
+    }
+
+

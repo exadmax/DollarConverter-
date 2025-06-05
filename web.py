@@ -56,6 +56,12 @@ def b3_valorizacao():
     return render_template("b3_val.html", dados=dados)
 
 
+@app.route("/monitor")
+def monitor():
+    dados = core.gather_monitor_data()
+    return render_template("monitor.html", dados=dados)
+
+
 
 @app.route("/", methods=["GET", "POST"])
 def index():
