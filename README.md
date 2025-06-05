@@ -31,6 +31,9 @@ Aplicativo Python que permite a conversão entre moedas tradicionais e criptomoe
 - Baseado em um rendimento percentual médio ajustável (ex: 3%/semana)
 - Interface intuitiva tanto no terminal quanto na GUI
 
+### 💹 Cotação de Ações da B3
+- Consulta preços de empresas listadas na B3 em tempo real
+
 ### 🌐 Versão Web (Flask)
 - Interface web com as mesmas funcionalidades
 - Ideal para uso em navegador ou via WebView Android
@@ -98,6 +101,9 @@ A Python application to convert between fiat currencies and cryptocurrencies, an
 - Calculates required investment for a target weekly profit
 - Based on customizable weekly return rate (e.g. 3%/week)
 - Available in both terminal and GUI
+
+### 💹 B3 Stock Quotes
+- Check real-time prices of B3 listed companies
 
 ### 🌐 Web Version (Flask)
 - Full-featured web interface
