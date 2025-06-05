@@ -1,28 +1,12 @@
 from flask import Flask, render_template, request
 from datetime import datetime
-import requests
+
+import core
 
 app = Flask(__name__)
 
-MOEDAS = {
-    "USD": "Dólar",
-    "BRL": "Real",
-    "BTC": "Bitcoin",
-    "ETH": "Ethereum",
-    "BNB": "BNB",
-    "SUI": "Sui",
-    "PAXG": "Pax Gold"
-}
+MOEDAS = core.CURRENCIES
 
-def obter_cotacao(origem, destino):
-    try:
-        url = f"https://economia.awesomeapi.com.br/json/last/{origem}-{destino}"
-        resposta = requests.get(url)
-        dados = resposta.json()
-        chave = f"{origem}{destino}"
-        return float(dados[chave]["bid"])
-    except:
-        return None
 
 def salvar_historico(origem, destino, valor, convertido, cotacao):
     data = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -37,11 +21,11 @@ def simulador():
             meta_reais = float(request.form.get("meta"))
             rendimento = float(request.form.get("rendimento"))
 
-            if rendimento <= 0:
-                resultado = "Rendimento deve ser maior que zero."
-            else:
-                investimento_necessario = meta_reais / (rendimento / 100)
-                resultado = f"✅ Para lucrar R${meta_reais:.2f}/semana com {rendimento:.2f}%, você precisa investir R${investimento_necessario:.2f}"
+            investimento_necessario = core.investment_for_weekly_profit(meta_reais, rendimento)
+            resultado = (
+                f"✅ Para lucrar R${meta_reais:.2f}/semana com {rendimento:.2f}%, "
+                f"você precisa investir R${investimento_necessario:.2f}"
+            )
         except ValueError:
             resultado = "Preencha os campos corretamente."
 
@@ -58,14 +42,10 @@ def index():
         para = request.form.get("para")
         try:
             valor_float = float(valor)
-            cotacao = obter_cotacao(de, para)
-            if cotacao:
-                convertido = valor_float * cotacao
-                resultado = f"{valor_float:.4f} {de} = {convertido:.4f} {para}"
-                salvar_historico(de, para, valor_float, convertido, cotacao)
-            else:
-                resultado = "Erro ao buscar cotação."
-        except ValueError:
+            convertido = core.convert(valor_float, de, para)
+            resultado = f"{valor_float:.4f} {de} = {convertido:.4f} {para}"
+            salvar_historico(de, para, valor_float, convertido, core.get_exchange_rate(de, para))
+        except Exception:
             resultado = "Valor inválido."
 
     return render_template("index.html", moedas=MOEDAS, resultado=resultado)
