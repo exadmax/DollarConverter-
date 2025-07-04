@@ -70,6 +70,32 @@ class TestCore(unittest.TestCase):
         with self.assertRaises(ConnectionError):
             core.get_exchange_rate('USD', 'BRL')
 
+    @patch('core.requests.get')
+    def test_fetch_b3_stock_price_success(self, mock_get):
+        mock_resp = mock_get.return_value
+        mock_resp.raise_for_status.return_value = None
+        mock_resp.json.return_value = {"results": [{"regularMarketPrice": 99.0}]}
+        price = core.fetch_b3_stock_price_brl('PETR4')
+        self.assertEqual(price, 99.0)
+
+    @patch('core.requests.get', side_effect=core.requests.RequestException)
+    def test_fetch_b3_stock_price_api_down(self, mock_get):
+        with self.assertRaises(ConnectionError):
+            core.fetch_b3_stock_price_brl('PETR4')
+
+    @patch('core.requests.get')
+    def test_fetch_b3_stock_price_invalid(self, mock_get):
+        mock_resp = mock_get.return_value
+        mock_resp.raise_for_status.return_value = None
+        mock_resp.json.return_value = {}
+        with self.assertRaises(ValueError):
+            core.fetch_b3_stock_price_brl('XXXX')
+
+    @patch('core.fetch_b3_stock_price_brl', side_effect=ConnectionError)
+    def test_get_b3_stock_price_brl_fallback(self, mock_fetch):
+        price = core.get_b3_stock_price_brl('PETR4')
+        self.assertEqual(price, core.B3_STOCKS['PETR4']['price_brl'])
+
 if __name__ == '__main__':
     unittest.main()
 

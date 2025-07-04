@@ -231,6 +231,40 @@ def get_b3_stock_info(ticker: str) -> dict:
     return B3_STOCKS[ticker]
 
 
+def fetch_b3_stock_price_brl(ticker: str) -> float:
+    """Fetch the latest BRL price for a B3 stock using brapi.dev.
+
+    Raises ConnectionError if the API request fails and ValueError if the ticker
+    is not found or the response is malformed.
+    """
+    url = f"https://brapi.dev/api/quote/{ticker}?range=1d&interval=1d&fundamental=false&dividends=false"
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+    except requests.RequestException as exc:
+        raise ConnectionError("API de ações indisponível") from exc
+
+    results = data.get("results") or data.get("stocks")
+    if not results:
+        raise ValueError("Ticker inválido")
+    price = results[0].get("regularMarketPrice")
+    if price is None:
+        raise ValueError("Preço não disponível")
+    return float(price)
+
+
+def get_b3_stock_price_brl(ticker: str) -> float:
+    """Return the latest BRL price for a B3 stock.
+
+    Attempts to fetch live data and falls back to the offline table on failure.
+    """
+    try:
+        return fetch_b3_stock_price_brl(ticker)
+    except Exception:
+        return get_b3_stock_info(ticker)["price_brl"]
+
+
 def _calc_appreciation(history: list[float]) -> list[float]:
     """Return percentage change between consecutive entries."""
     return [
@@ -281,7 +315,7 @@ def gather_monitor_data() -> dict:
     """Return data used by the monitoring interfaces."""
     return {
         "currencies": get_all_currency_prices_brl(),
-        "stocks": {t: info["price_brl"] for t, info in B3_STOCKS.items()},
+        "stocks": {t: get_b3_stock_price_brl(t) for t in B3_STOCKS.keys()},
     }
 
 

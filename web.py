@@ -11,8 +11,14 @@ ACOES = core.get_b3_stocks()
 
 def salvar_historico(origem, destino, valor, convertido, cotacao):
     data = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    with open("historico.txt", "a", encoding="utf-8") as f:
-        f.write(f"[{data}] {valor} {origem} -> {convertido:.2f} {destino} (cotação: {cotacao})\n")
+    try:
+        with open("historico.txt", "a", encoding="utf-8") as f:
+            f.write(
+                f"[{data}] {valor} {origem} -> {convertido:.2f} {destino} (cotação: {cotacao})\n"
+            )
+    except OSError:
+        # Falha ao salvar o histórico não deve interromper a aplicação
+        pass
 
 @app.route("/simulador", methods=["GET", "POST"])
 def simulador():
@@ -35,7 +41,14 @@ def simulador():
 
 @app.route("/b3", methods=["GET"])
 def b3():
-    return render_template("b3.html", acoes=ACOES)
+    dados = {}
+    for tic, info in ACOES.items():
+        try:
+            preco = core.get_b3_stock_price_brl(tic)
+        except ConnectionError:
+            preco = info["price_brl"]
+        dados[tic] = {**info, "price_brl": preco}
+    return render_template("b3.html", acoes=dados)
 
 
 @app.route("/moedas")
