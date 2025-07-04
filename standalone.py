@@ -66,8 +66,13 @@ def modo_console_b3():
             idx = int(escolha) - 1
             if 0 <= idx < len(tickers):
                 acao = ACAO_INFO[tickers[idx]]
+                try:
+                    preco = core.get_b3_stock_price_brl(tickers[idx])
+                except ConnectionError:
+                    preco = acao['price_brl']
+                    print('Falha ao atualizar preço online, exibindo valor offline.')
                 print(
-                    f"Preço: R${acao['price_brl']:.2f} | Rendimento semanal: {acao['weekly_return']:.2f}%"
+                    f"Preço: R${preco:.2f} | Rendimento semanal: {acao['weekly_return']:.2f}%"
                 )
                 break
         except ValueError:
