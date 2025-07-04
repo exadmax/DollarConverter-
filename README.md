@@ -25,6 +25,7 @@ Aplicativo Python que permite a conversão entre moedas tradicionais e criptomoe
   - Sui (SUI)
   - Pax Gold (PAXG)
 - Utiliza cotações em tempo real via [AwesomeAPI](https://docs.awesomeapi.com.br/api-de-moedas)
+- Conversão para BRL usa USD como intermediário quando necessário
 
 ### 📈 Simulador de Lucro Semanal
 - Calcula quanto investir para atingir uma meta semanal de lucro
@@ -93,6 +94,7 @@ A Python application to convert between fiat currencies and cryptocurrencies, an
   - Sui (SUI)
   - Pax Gold (PAXG)
 - Uses real-time exchange rates from [AwesomeAPI](https://docs.awesomeapi.com.br/api-de-moedas)
+- Conversions to BRL automatically fallback through USD when a direct pair is unavailable
 
 ### 📈 Weekly Profit Simulator
 - Calculates required investment for a target weekly profit

@@ -42,9 +42,21 @@ def get_exchange_rate(origem: str, destino: str) -> float:
 
 
 def convert(value: float, origem: str, destino: str, rate: float | None = None) -> float:
-    """Convert value from origem to destino. If rate is None, fetch it."""
+    """Convert value from origem to destino. If rate is None, fetch it.
+
+    When converting to BRL and a direct pair is unavailable, the
+    conversion is attempted via USD.
+    """
     if rate is None:
-        rate = get_exchange_rate(origem, destino)
+        try:
+            rate = get_exchange_rate(origem, destino)
+        except ValueError:
+            if destino == "BRL" and origem != "BRL":
+                usd_rate = get_exchange_rate(origem, "USD")
+                brl_rate = get_exchange_rate("USD", "BRL")
+                rate = usd_rate * brl_rate
+            else:
+                raise
     return value * rate
 
 
@@ -252,7 +264,7 @@ def get_currency_price_brl(code: str) -> float:
     if code == "BRL":
         return 1.0
     try:
-        return get_exchange_rate(code, "BRL")
+        return convert(1.0, code, "BRL")
     except Exception:
         hist = CURRENCY_HISTORY_BRL.get(code)
         if not hist:

@@ -13,6 +13,40 @@ class TestCore(unittest.TestCase):
     def test_convert_with_mocked_rate(self, mock_rate):
         self.assertEqual(core.convert(2, 'USD', 'BRL'), 10.0)
 
+    def test_convert_to_brl_via_usd(self):
+        seq = [
+            ValueError('Par de moedas inválido'),
+            300.0,  # BNB->USD
+            5.0     # USD->BRL
+        ]
+
+        def side_effect(origem, destino):
+            res = seq.pop(0)
+            if isinstance(res, Exception):
+                raise res
+            return res
+
+        with patch('core.get_exchange_rate', side_effect=side_effect):
+            result = core.convert(1, 'BNB', 'BRL')
+            self.assertEqual(result, 1500.0)
+
+    def test_get_currency_price_brl_fallback(self):
+        seq = [
+            ValueError('Par de moedas inválido'),
+            200.0,  # ETH->USD
+            5.0     # USD->BRL
+        ]
+
+        def side_effect(origem, destino):
+            res = seq.pop(0)
+            if isinstance(res, Exception):
+                raise res
+            return res
+
+        with patch('core.get_exchange_rate', side_effect=side_effect):
+            price = core.get_currency_price_brl('ETH')
+            self.assertEqual(price, 1000.0)
+
     def test_get_b3_stock_info(self):
         info = core.get_b3_stock_info('PETR4')
         self.assertIn('price_brl', info)
