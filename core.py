@@ -319,3 +319,112 @@ def gather_monitor_data() -> dict:
     }
 
 
+def convert_md_to_docx(input_path: str, output_path: str | None = None, *, preserve_images: bool = True) -> str:
+    """Convert a Markdown file to a .docx file using a pure-Python approach.
+
+    This implementation avoids requiring `pandoc` and `pypandoc`, instead
+    using `markdown` to help parse simple structures and `python-docx`
+    to build the document. It supports headings, paragraphs, fenced code
+    blocks and local images (via `![alt](path)`). Remote images are
+    downloaded when `preserve_images` is True.
+
+    Returns the path to the generated .docx file.
+    """
+    from docx import Document
+    from docx.shared import Pt
+    import re
+    import os
+    import tempfile
+
+    if output_path is None:
+        base, _ = os.path.splitext(input_path)
+        output_path = f"{base}.docx"
+
+    doc = Document()
+
+    code_block = False
+    code_lines: list[str] = []
+
+    img_pattern = re.compile(r"!\[(.*?)\]\((.*?)\)")
+
+    with open(input_path, "r", encoding="utf-8") as fh:
+        for line in fh:
+            line = line.rstrip("\n")
+
+            # Fenced code block start/end
+            if line.strip().startswith("```"):
+                if not code_block:
+                    code_block = True
+                    code_lines = []
+                    continue
+                else:
+                    # close block
+                    para = doc.add_paragraph()
+                    run = para.add_run("\n".join(code_lines))
+                    run.font.name = "Courier New"
+                    run.font.size = Pt(9)
+                    code_block = False
+                    code_lines = []
+                    continue
+
+            if code_block:
+                code_lines.append(line)
+                continue
+
+            # Headings
+            if line.startswith("#"):
+                level = len(line) - len(line.lstrip("#"))
+                text = line.lstrip("#").strip()
+                if text:
+                    doc.add_heading(text, level=min(level, 4))
+                continue
+
+            # Images
+            m = img_pattern.search(line)
+            if m:
+                alt, src = m.groups()
+                src = src.strip()
+                try:
+                    if src.startswith("http://") or src.startswith("https://"):
+                        if preserve_images:
+                            resp = requests.get(src, timeout=10)
+                            resp.raise_for_status()
+                            fd, tmp = tempfile.mkstemp(suffix=os.path.splitext(src)[1])
+                            with os.fdopen(fd, "wb") as out:
+                                out.write(resp.content)
+                            doc.add_picture(tmp)
+                            try:
+                                os.remove(tmp)
+                            except Exception:
+                                pass
+                        else:
+                            doc.add_paragraph(f"Image: {src}")
+                    else:
+                        # local file
+                        path = os.path.join(os.path.dirname(input_path), src)
+                        if os.path.exists(path) and preserve_images:
+                            doc.add_picture(path)
+                        else:
+                            doc.add_paragraph(f"Image: {src}")
+                except Exception:
+                    doc.add_paragraph(f"Image: {src}")
+                continue
+
+            # Lists (simple handling)
+            if line.lstrip().startswith(('- ', '* ')):
+                doc.add_paragraph(line.lstrip('- ').lstrip('* '))
+                continue
+
+            # Empty line -> paragraph separation
+            if not line.strip():
+                # add an empty paragraph to preserve spacing
+                doc.add_paragraph("")
+                continue
+
+            # Normal paragraph
+            doc.add_paragraph(line)
+
+    doc.save(output_path)
+    return output_path
+
+

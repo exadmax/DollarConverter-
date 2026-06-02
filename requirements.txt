@@ -1,3 +1,5 @@
 requests>=2.32
 flask>=3.1
 asciichartpy>=1.5
+python-docx>=0.8.11
+markdown>=3.4
