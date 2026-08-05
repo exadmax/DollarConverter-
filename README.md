@@ -1,170 +1,91 @@
 ![Python](https://img.shields.io/badge/python-3.8%2B-blue?logo=python)
+![Flutter](https://img.shields.io/badge/flutter-web-blue?logo=flutter)
 ![License](https://img.shields.io/github/license/exadmax/DollarConverter-)
 ![Last Commit](https://img.shields.io/github/last-commit/exadmax/DollarConverter-)
 ![Repo Size](https://img.shields.io/github/repo-size/exadmax/DollarConverter-)
 ![Issues](https://img.shields.io/github/issues/exadmax/DollarConverter-)
 
 
-# 💱 Conversor de Moedas e Simulador de Lucros Semanais
+# 💱 InvestWatch — Conversor de Moedas, Ibovespa e Simulador de Lucros
 
-Aplicativo Python que permite a conversão entre moedas tradicionais e criptomoedas, além de simular quanto você precisa investir para alcançar uma meta de lucro semanal com base em um rendimento percentual estimado.
+Este repositório reúne duas aplicações independentes que compartilham a mesma ideia: acompanhar cotações de moedas/criptomoedas e ações da B3, converter valores e simular metas de lucro semanal.
 
-> Funciona em dois modos: interface gráfica (Tkinter) ou modo texto (console), dependendo do ambiente. Também há uma **versão web (Flask)** para rodar via navegador ou WebView em Android.
+- **App Web (Flutter)** — em [`app/`](app/). Dashboard de observação (watchlist) de moedas, criptomoedas, o índice Ibovespa e ações da B3, com conversor e simulador. Não requer login: o usuário adiciona/remove itens da watchlist e as preferências ficam salvas no próprio navegador (localStorage). É publicado automaticamente no **GitHub Pages**.
+- **App Desktop (Python)** — `standalone.py` + `core.py`, interface Tkinter (GUI) com fallback em modo texto (console).
 
----
-
-## 🧩 Funcionalidades
-
-### 🪙 Conversor de Moedas
-- Converte entre:
-  - Dólar (USD)
-  - Real (BRL)
-  - Bitcoin (BTC)
-  - Ethereum (ETH)
-  - BNB
-  - Sui (SUI)
-  - Pax Gold (PAXG)
-- Utiliza cotações em tempo real via [AwesomeAPI](https://docs.awesomeapi.com.br/api-de-moedas)
-- Conversão para BRL usa USD como intermediário quando necessário
-
-### 📈 Simulador de Lucro Semanal
-- Calcula quanto investir para atingir uma meta semanal de lucro
-- Baseado em um rendimento percentual médio ajustável (ex: 3%/semana)
-- Interface intuitiva tanto no terminal quanto na GUI
-
-### 🌐 Versão Web (Flask)
-- Interface web com as mesmas funcionalidades
-- Ideal para uso em navegador ou via WebView Android
-
-### 🧠 Modo Inteligente
-- Detecta automaticamente se deve usar interface gráfica ou terminal
-- Menu inicial para escolher entre conversor ou simulador
+> A versão web em Flask (`web.py` + `templates/`) foi descontinuada e removida em favor do app Flutter, que roda inteiramente no navegador (sem servidor/backend) e pode ser hospedado como site estático.
 
 ---
 
-## 🖥️ Como executar
+## 🌐 App Web (Flutter) — `app/`
+
+### Funcionalidades
+- **Monitor/Dashboard**: watchlist de moedas/criptos e ações B3 + índice Ibovespa, com preços atualizados automaticamente a cada 5 minutos.
+- **Adicionar itens**: o usuário pode adicionar qualquer código de moeda (validado via AwesomeAPI) ou ticker da B3 (validado via brapi.dev) à sua watchlist.
+- **Persistência sem login**: a watchlist é salva no navegador do usuário (localStorage), sem conta nem servidor.
+- **Conversor de moedas**: mesma lógica de conversão do app original (fallback via USD para pares BRL indisponíveis).
+- **Simulador de lucro semanal**.
+- **Valorização mensal**: gráfico de variação percentual de moedas e ações (dados ilustrativos offline).
+
+### Origem dos dados
+Os preços são buscados **diretamente do navegador**, sem servidor intermediário:
+- Câmbio/cripto: [AwesomeAPI](https://docs.awesomeapi.com.br/api-de-moedas)
+- Ações B3 e Ibovespa: [brapi.dev](https://brapi.dev/)
+
+Quando uma API está indisponível, os itens conhecidos (moedas e ações padrão) caem para uma tabela offline ilustrativa embutida no app.
+
+### Rodar localmente
+```bash
+cd app
+flutter pub get
+flutter run -d chrome
+```
+
+### Build de produção
+```bash
+cd app
+flutter build web --release
+```
+
+### Deploy no GitHub Pages
+O workflow [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) builda o app Flutter e publica em GitHub Pages a cada push em `main` que altere `app/`. Para ativar:
+1. Nas configurações do repositório, em **Settings → Pages**, defina a fonte como **GitHub Actions**.
+2. Faça push para `main` (ou dispare manualmente em **Actions → Deploy Flutter Web to GitHub Pages → Run workflow**).
+
+---
+
+## 🖥️ App Desktop (Python) — `standalone.py`
 
 ### Requisitos
 - Python 3.8+
-- `requests` (instale com `pip install requests`)
+- `pip install -r requirements.txt`
 - `tkinter` (já incluso no Python para Windows/Linux)
-- `flask` (apenas para a versão web)
 
-### Executar app desktop (GUI ou terminal)
+### Executar
 ```bash
 python standalone.py
 ```
+Detecta automaticamente se deve abrir a interface gráfica (Tkinter) ou o modo texto (console).
 
-### Executar versão web
+### Testes
 ```bash
-python web.py
+python -m unittest
 ```
-Acesse: http://127.0.0.1:5000
+
+### Build Windows Executable
+```cmd
+build_windows.bat
+```
+O executável `DollarConverter.exe` fica disponível em `dist/`.
 
 ---
 
 ## 📁 Estrutura do Projeto
 
 ```
-standalone.py          # Código principal com GUI e console
-web.py                 # Versão web com Flask
-templates/             # HTMLs para a versão web
-historico.txt          # (opcional) log das conversões
-```
-
----
-
-# 💱 Currency Converter & Weekly Profit Simulator
-
-A Python application to convert between fiat currencies and cryptocurrencies, and simulate how much to invest to reach a weekly profit goal based on estimated return.
-
-> Works in GUI (Tkinter), terminal, and also includes a **Flask web version** for browser or Android WebView use.
-
----
-
-## 🧩 Features
-
-### 🪙 Currency Converter
-- Convert between:
-  - US Dollar (USD)
-  - Brazilian Real (BRL)
-  - Bitcoin (BTC)
-  - Ethereum (ETH)
-  - BNB
-  - Sui (SUI)
-  - Pax Gold (PAXG)
-- Uses real-time exchange rates from [AwesomeAPI](https://docs.awesomeapi.com.br/api-de-moedas)
-- Conversions to BRL automatically fallback through USD when a direct pair is unavailable
-
-### 📈 Weekly Profit Simulator
-- Calculates required investment for a target weekly profit
-- Based on customizable weekly return rate (e.g. 3%/week)
-- Available in both terminal and GUI
-
-### 🌐 Web Version (Flask)
-- Full-featured web interface
-- Ideal for use in browser or Android WebView
-
-### 🧠 Smart Mode
-- Auto-detects whether to run GUI or console
-- Menu allows choosing between converter or simulator
-
-### 📊 B3 Stocks
-- View example prices of popular B3 tickers in BRL
-- Weekly return percentages displayed
-
----
-
-## 🖥️ How to Run
-
-### Requirements
-- Python 3.8+
-- Install dependencies with `pip install -r requirements.txt`
-- `tkinter` (bundled with most Python installs)
-
-### Run Desktop App (GUI or CLI)
-```bash
-python standalone.py
-```
-The application chooses GUI or CLI automatically depending on your environment.
-Use the menu to access the currency converter, the profit simulator or the B3 stock list.
-
-### Run Web Version
-```bash
-python web.py
-```
-Access: http://127.0.0.1:5000
-Navigate to `/b3` for the B3 stocks page.
-
-### Run Tests
-```bash
-python -m unittest
-```
-
-### Build Windows Executable
-Use [PyInstaller](https://pyinstaller.org/) to bundle the application into a
-single Windows binary. From a Windows command prompt run:
-```cmd
-build_windows.bat
-```
-The generated `DollarConverter.exe` will be available in the `dist` folder.
-
-### Deployment
-The Flask web app requires a Python server and therefore cannot run directly on
-GitHub Pages. To make it accessible online you can deploy it on services such as
-[Render](https://render.com/) or [Fly.io](https://fly.io/). GitHub Pages can be
-used to host the static HTML under `templates/`, but a Python backend is still
-needed for the conversions.
-
----
-
-## 📁 Project Structure
-
-```
-standalone.py          # Main code with GUI + CLI
-web.py                 # Flask-based web version
-templates/             # HTML templates for web UI
-historico.txt          # (optional) conversion history
-core.py                # Shared conversion and simulation logic
-test_core.py           # Unit tests for core functions
+app/                    # App web em Flutter (dashboard, conversor, simulador, gráficos)
+standalone.py           # App desktop: GUI (Tkinter) + console
+core.py                 # Lógica de conversão e simulação usada pelo app desktop
+test_core.py            # Testes unitários do core.py
+.github/workflows/      # Pipeline de build e deploy do app Flutter no GitHub Pages
 ```
