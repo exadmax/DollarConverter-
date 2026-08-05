@@ -3,8 +3,10 @@ import 'package:http/http.dart' as http;
 
 import '../models/market_data.dart';
 
-/// Fetches B3 stock and market index quotes from brapi.dev, with
-/// offline fallback for known tickers.
+/// Fetches B3 stock, US stock and market index quotes from brapi.dev,
+/// with offline fallback for known tickers. The returned price is in
+/// the ticker's native currency (BRL for B3/indices, USD for US
+/// stocks and the S&P 500) — brapi.dev doesn't convert.
 class B3Service {
   static const _baseUrl = 'https://brapi.dev/api/quote';
 
@@ -43,15 +45,15 @@ class B3Service {
     return (price as num).toDouble();
   }
 
-  /// Latest BRL price for a known B3 [ticker] or market index, falling
+  /// Latest price for a known B3/US [ticker] or market index, falling
   /// back to the offline table on failure. For unknown tickers
   /// (user-added), the live fetch is required and failures propagate.
   Future<double> getPriceBrl(String ticker) async {
     try {
       return await fetchPriceBrl(ticker);
     } catch (_) {
-      final info = b3Stocks[ticker];
-      if (info != null) return info.priceBrl;
+      final info = b3Stocks[ticker] ?? spStocks[ticker];
+      if (info != null) return info.price;
       final indexFallback = indexFallbackPoints[ticker];
       if (indexFallback != null) return indexFallback;
       rethrow;

@@ -26,6 +26,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   List<String> _currencies = [];
   List<String> _stocks = [];
+  List<String> _usStocks = [];
   Map<String, double> _currencyPrices = {};
   Map<String, double> _stockPrices = {};
   bool _loading = true;
@@ -48,13 +49,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Future<void> _bootstrap() async {
     _currencies = await _watchlist.loadCurrencies();
     _stocks = await _watchlist.loadStocks();
+    _usStocks = await _watchlist.loadUsStocks();
     await _refreshPrices();
   }
 
   Future<void> _refreshPrices() async {
     setState(() => _loading = true);
     final currencyPrices = await _exchange.getAllCurrencyPricesBrl(_currencies);
-    final tickers = [...indexLabels.keys, ..._stocks];
+    final tickers = [...indexLabels.keys, ..._stocks, ..._usStocks];
     final stockPrices = await _b3.getAllPricesBrl(tickers);
     if (!mounted) return;
     setState(() {
@@ -106,6 +108,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
     await _refreshPrices();
   }
 
+  Future<void> _addUsStock() async {
+    final ticker = await _promptForCode(
+      title: 'Adicionar ação americana',
+      hint: 'Ticker (ex: DIS, KO, NFLX)',
+    );
+    if (ticker == null || ticker.isEmpty) return;
+    setState(() => _loading = true);
+    try {
+      await _b3.fetchPriceBrl(ticker.toUpperCase());
+      _usStocks = await _watchlist.addUsStock(ticker);
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Ticker inválido ou indisponível.')),
+        );
+      }
+    }
+    await _refreshPrices();
+  }
+
   Future<String?> _promptForCode({required String title, required String hint}) {
     final controller = TextEditingController();
     return showDialog<String>(
@@ -136,6 +158,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> _removeStock(String ticker) async {
     _stocks = await _watchlist.removeStock(ticker);
+    setState(() => _stockPrices.remove(ticker));
+  }
+
+  Future<void> _removeUsStock(String ticker) async {
+    _usStocks = await _watchlist.removeUsStock(ticker);
     setState(() => _stockPrices.remove(ticker));
   }
 
@@ -180,13 +207,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Índices e Ações B3', style: Theme.of(context).textTheme.titleMedium),
-                IconButton(icon: const Icon(Icons.add_circle_outline), onPressed: _addStock),
-              ],
-            ),
+            child: Text('Índices', style: Theme.of(context).textTheme.titleMedium),
           ),
           for (final entry in indexLabels.entries)
             PriceTile(
@@ -196,6 +217,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
               loading: _loading && _stockPrices[entry.key] == null,
               currencyPrefix: null,
             ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Ações B3', style: Theme.of(context).textTheme.titleMedium),
+                IconButton(icon: const Icon(Icons.add_circle_outline), onPressed: _addStock),
+              ],
+            ),
+          ),
           for (final ticker in _stocks)
             PriceTile(
               code: ticker,
@@ -203,6 +234,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
               price: _stockPrices[ticker],
               loading: _loading && _stockPrices[ticker] == null,
               onRemove: () => _removeStock(ticker),
+            ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Ações S&P 500', style: Theme.of(context).textTheme.titleMedium),
+                IconButton(icon: const Icon(Icons.add_circle_outline), onPressed: _addUsStock),
+              ],
+            ),
+          ),
+          for (final ticker in _usStocks)
+            PriceTile(
+              code: ticker,
+              label: spStocks[ticker]?.name ?? ticker,
+              price: _stockPrices[ticker],
+              loading: _loading && _stockPrices[ticker] == null,
+              onRemove: () => _removeUsStock(ticker),
+              currencyPrefix: 'US\$ ',
             ),
           const SizedBox(height: 24),
         ],

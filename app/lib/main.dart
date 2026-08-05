@@ -4,7 +4,9 @@ import 'screens/appreciation_screen.dart';
 import 'screens/b3_screen.dart';
 import 'screens/converter_screen.dart';
 import 'screens/dashboard_screen.dart';
+import 'screens/indices_screen.dart';
 import 'screens/simulator_screen.dart';
+import 'screens/sp500_screen.dart';
 
 void main() {
   runApp(const InvestWatchApp());
@@ -38,13 +40,15 @@ class HomeShell extends StatefulWidget {
 class _HomeShellState extends State<HomeShell> {
   int _index = 0;
 
-  static const _titles = ['Monitor', 'Conversor', 'Simulador', 'Ações B3', 'Valorização'];
+  static const _titles = ['Monitor', 'Conversor', 'Simulador', 'Ações B3', 'Ações S&P 500', 'Índices', 'Valorização'];
 
   static const _screens = [
     DashboardScreen(),
     ConverterScreen(),
     SimulatorScreen(),
     B3Screen(),
+    SP500Screen(),
+    IndicesScreen(),
     AppreciationScreen(),
   ];
 
@@ -57,6 +61,8 @@ class _HomeShellState extends State<HomeShell> {
       NavigationDestination(icon: Icon(Icons.currency_exchange), label: 'Conversor'),
       NavigationDestination(icon: Icon(Icons.calculate_outlined), selectedIcon: Icon(Icons.calculate), label: 'Simulador'),
       NavigationDestination(icon: Icon(Icons.show_chart), label: 'Ações B3'),
+      NavigationDestination(icon: Icon(Icons.flag), label: 'S&P 500'),
+      NavigationDestination(icon: Icon(Icons.public), label: 'Índices'),
       NavigationDestination(icon: Icon(Icons.bar_chart), label: 'Valorização'),
     ];
 

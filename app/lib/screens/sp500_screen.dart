@@ -4,16 +4,18 @@ import '../models/market_data.dart';
 import '../services/b3_service.dart';
 import '../services/watchlist_service.dart';
 
-/// Full B3 stock list with live prices and weekly return, plus a
-/// shortcut to add/remove each ticker from the watchlist.
-class B3Screen extends StatefulWidget {
-  const B3Screen({super.key});
+/// S&P 500 blue-chip US stock list with live prices (in USD) and
+/// weekly return, plus a shortcut to add/remove each ticker from the
+/// user's US stocks watchlist. Mirrors [B3Screen] for the American
+/// market.
+class SP500Screen extends StatefulWidget {
+  const SP500Screen({super.key});
 
   @override
-  State<B3Screen> createState() => _B3ScreenState();
+  State<SP500Screen> createState() => _SP500ScreenState();
 }
 
-class _B3ScreenState extends State<B3Screen> {
+class _SP500ScreenState extends State<SP500Screen> {
   final _b3 = B3Service();
   final _watchlist = WatchlistService();
   Map<String, double> _prices = {};
@@ -28,17 +30,17 @@ class _B3ScreenState extends State<B3Screen> {
 
   Future<void> _load() async {
     setState(() => _loading = true);
-    _watched = await _watchlist.loadStocks();
-    _prices = await _b3.getAllPricesBrl(b3Stocks.keys.toList());
+    _watched = await _watchlist.loadUsStocks();
+    _prices = await _b3.getAllPricesBrl(spStocks.keys.toList());
     if (!mounted) return;
     setState(() => _loading = false);
   }
 
   Future<void> _toggle(String ticker) async {
     if (_watched.contains(ticker)) {
-      _watched = await _watchlist.removeStock(ticker);
+      _watched = await _watchlist.removeUsStock(ticker);
     } else {
-      _watched = await _watchlist.addStock(ticker);
+      _watched = await _watchlist.addUsStock(ticker);
     }
     setState(() {});
   }
@@ -50,11 +52,11 @@ class _B3ScreenState extends State<B3Screen> {
       onRefresh: _load,
       child: ListView(
         children: [
-          for (final entry in b3Stocks.entries)
+          for (final entry in spStocks.entries)
             ListTile(
               title: Text('${entry.value.name} (${entry.key})'),
               subtitle: Text(
-                'R\$ ${(_prices[entry.key] ?? entry.value.price).toStringAsFixed(2)} · '
+                'US\$ ${(_prices[entry.key] ?? entry.value.price).toStringAsFixed(2)} · '
                 'Rendimento semanal: ${entry.value.weeklyReturn.toStringAsFixed(2)}%',
               ),
               trailing: IconButton(
