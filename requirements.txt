@@ -1,3 +1,2 @@
 requests>=2.32
-flask>=3.1
 asciichartpy>=1.5
