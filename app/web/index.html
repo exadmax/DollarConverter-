@@ -34,26 +34,14 @@
 </head>
 <body>
   <!--
-    Custom bootstrap: forces CanvasKit to load from the locally bundled
-    "canvaskit/" assets instead of the default gstatic.com CDN, so the
-    app works fully offline / without third-party CDN access (relevant
-    for GitHub Pages hosting and restricted network environments).
+    "flutter_bootstrap.js" is customized (see web/flutter_bootstrap.js)
+    to load CanvasKit from the locally bundled "canvaskit/" assets
+    instead of the default gstatic.com CDN, so the app doesn't depend
+    on third-party CDN access.
 
     For more details:
     * https://docs.flutter.dev/platform-integration/web/initialization
   -->
-  <script src="flutter.js" defer></script>
-  <script>
-    window.addEventListener('load', function () {
-      _flutter.loader.load({
-        onEntrypointLoaded: async function (engineInitializer) {
-          const appRunner = await engineInitializer.initializeEngine({
-            canvasKitBaseUrl: "canvaskit/",
-          });
-          appRunner.runApp();
-        },
-      });
-    });
-  </script>
+  <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
