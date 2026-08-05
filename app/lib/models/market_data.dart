@@ -70,8 +70,22 @@ final Map<String, StockInfo> b3Stocks = {
   'NTCO3': const StockInfo(ticker: 'NTCO3', name: 'Natura ON', priceBrl: 15.00, weeklyReturn: 1.5, monthly: [13, 13.5, 14, 14.5, 14.8, 15]),
 };
 
-/// Ticker used to observe the Ibovespa index itself via brapi.dev.
-const String ibovespaTicker = '^BVSP';
+/// B3 market indices shown alongside the currency/stock watchlist.
+/// brapi.dev requires an authentication token to query indices (unlike
+/// plain stock tickers), and this app has no backend to hold one
+/// securely, so these always fall back to an illustrative offline
+/// value when the live fetch fails without an API key.
+const Map<String, String> indexLabels = {
+  '^BVSP': 'Índice Ibovespa',
+  'IFIX': 'Índice IFIX',
+  '^GSPC': 'S&P 500',
+};
+
+const Map<String, double> indexFallbackPoints = {
+  '^BVSP': 136000,
+  'IFIX': 3400,
+  '^GSPC': 5600,
+};
 
 /// Percentage change between consecutive entries of a history list.
 List<double> monthlyAppreciation(List<double> history) {
