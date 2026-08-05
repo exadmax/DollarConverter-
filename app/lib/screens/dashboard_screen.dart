@@ -9,8 +9,9 @@ import '../services/watchlist_service.dart';
 import '../widgets/price_tile.dart';
 
 /// Main monitoring dashboard: shows the user's watchlist of currencies
-/// and B3 tickers (including the Ibovespa index), refreshing prices
-/// automatically every 5 minutes, mirroring the old "monitor" mode.
+/// and B3 tickers, plus the fixed Ibovespa/IFIX indices, refreshing
+/// prices automatically every 5 minutes, mirroring the old "monitor"
+/// mode.
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
@@ -53,7 +54,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Future<void> _refreshPrices() async {
     setState(() => _loading = true);
     final currencyPrices = await _exchange.getAllCurrencyPricesBrl(_currencies);
-    final tickers = [ibovespaTicker, ..._stocks];
+    final tickers = [...indexLabels.keys, ..._stocks];
     final stockPrices = await _b3.getAllPricesBrl(tickers);
     if (!mounted) return;
     setState(() {
@@ -182,17 +183,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Ibovespa e Ações B3', style: Theme.of(context).textTheme.titleMedium),
+                Text('Índices e Ações B3', style: Theme.of(context).textTheme.titleMedium),
                 IconButton(icon: const Icon(Icons.add_circle_outline), onPressed: _addStock),
               ],
             ),
           ),
-          PriceTile(
-            code: 'IBOV',
-            label: 'Índice Ibovespa',
-            price: _stockPrices[ibovespaTicker],
-            loading: _loading && _stockPrices[ibovespaTicker] == null,
-          ),
+          for (final entry in indexLabels.entries)
+            PriceTile(
+              code: entry.key == '^BVSP' ? 'IBOV' : entry.key.replaceAll('^', ''),
+              label: entry.value,
+              price: _stockPrices[entry.key],
+              loading: _loading && _stockPrices[entry.key] == null,
+              currencyPrefix: null,
+            ),
           for (final ticker in _stocks)
             PriceTile(
               code: ticker,
