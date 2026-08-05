@@ -3,9 +3,12 @@ import 'package:flutter/material.dart';
 
 import '../models/market_data.dart';
 
+enum _Category { currencies, stocks, usStocks, indices }
+
 /// Shows the monthly appreciation percentage (last 6 months) of a
-/// selected currency or B3 stock, based on the illustrative offline
-/// history table (the same data used as fallback elsewhere).
+/// selected currency, B3 stock, S&P 500 stock or market index
+/// (Ibovespa/IFIX/S&P 500), based on the illustrative offline history
+/// table (the same data used as fallback elsewhere).
 class AppreciationScreen extends StatefulWidget {
   const AppreciationScreen({super.key});
 
@@ -14,15 +17,46 @@ class AppreciationScreen extends StatefulWidget {
 }
 
 class _AppreciationScreenState extends State<AppreciationScreen> {
-  bool _showCurrencies = true;
+  _Category _category = _Category.currencies;
   String _selected = 'BTC';
+
+  List<String> _optionsFor(_Category category) {
+    switch (category) {
+      case _Category.currencies:
+        return currencyHistoryBrl.keys.toList();
+      case _Category.stocks:
+        return b3Stocks.keys.toList();
+      case _Category.usStocks:
+        return spStocks.keys.toList();
+      case _Category.indices:
+        return indexLabels.keys.toList();
+    }
+  }
+
+  List<double> _historyFor(_Category category, String selected) {
+    switch (category) {
+      case _Category.currencies:
+        return currencyHistoryBrl[selected]!;
+      case _Category.stocks:
+        return b3Stocks[selected]!.monthly;
+      case _Category.usStocks:
+        return spStocks[selected]!.monthly;
+      case _Category.indices:
+        return indexHistoryPoints[selected]!;
+    }
+  }
+
+  String _labelFor(_Category category, String option) {
+    if (category == _Category.indices) return indexLabels[option]!;
+    return option;
+  }
 
   @override
   Widget build(BuildContext context) {
-    final options = _showCurrencies ? currencyHistoryBrl.keys.toList() : b3Stocks.keys.toList();
+    final options = _optionsFor(_category);
     if (!options.contains(_selected)) _selected = options.first;
 
-    final history = _showCurrencies ? currencyHistoryBrl[_selected]! : b3Stocks[_selected]!.monthly;
+    final history = _historyFor(_category, _selected);
     final appreciation = monthlyAppreciation(history);
 
     return Padding(
@@ -30,19 +64,26 @@ class _AppreciationScreenState extends State<AppreciationScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SegmentedButton<bool>(
-            segments: const [
-              ButtonSegment(value: true, label: Text('Moedas')),
-              ButtonSegment(value: false, label: Text('Ações B3')),
-            ],
-            selected: {_showCurrencies},
-            onSelectionChanged: (s) => setState(() => _showCurrencies = s.first),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: SegmentedButton<_Category>(
+              segments: const [
+                ButtonSegment(value: _Category.currencies, label: Text('Moedas')),
+                ButtonSegment(value: _Category.stocks, label: Text('Ações B3')),
+                ButtonSegment(value: _Category.usStocks, label: Text('Ações S&P 500')),
+                ButtonSegment(value: _Category.indices, label: Text('Índices')),
+              ],
+              selected: {_category},
+              onSelectionChanged: (s) => setState(() => _category = s.first),
+            ),
           ),
           const SizedBox(height: 16),
           DropdownButtonFormField<String>(
             initialValue: _selected,
             decoration: const InputDecoration(border: OutlineInputBorder(), labelText: 'Selecione'),
-            items: [for (final o in options) DropdownMenuItem(value: o, child: Text(o))],
+            items: [
+              for (final o in options) DropdownMenuItem(value: o, child: Text(_labelFor(_category, o))),
+            ],
             onChanged: (v) => setState(() => _selected = v!),
           ),
           const SizedBox(height: 24),
