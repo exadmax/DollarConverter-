@@ -96,6 +96,25 @@ class TestCore(unittest.TestCase):
         price = core.get_b3_stock_price_brl('PETR4')
         self.assertEqual(price, core.B3_STOCKS['PETR4']['price_brl'])
 
+    def test_convert_md_to_docx_basic(self):
+        import tempfile
+        from docx import Document
+
+        md = """# Título de Teste
+
+Este é um parágrafo de teste.
+"""
+        with tempfile.TemporaryDirectory() as td:
+            md_path = f"{td}/sample.md"
+            with open(md_path, "w", encoding="utf-8") as f:
+                f.write(md)
+            out = core.convert_md_to_docx(md_path)
+            # abrir o docx e verificar conteúdo
+            doc = Document(out)
+            texts = "\n".join(p.text for p in doc.paragraphs)
+            self.assertIn("Título de Teste", texts)
+            self.assertIn("Este é um parágrafo de teste.", texts)
+
 if __name__ == '__main__':
     unittest.main()
 
